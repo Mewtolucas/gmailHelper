@@ -56,7 +56,7 @@ export function getCacheFilePath(filename: string): string {
 /**
  * Read JSON file safely
  */
-export function readJsonFile<T>(filePath: string, defaultValue?: T): T {
+export function readJsonFile<T>(filePath: string, defaultValue?: T | null): T | null {
   try {
     if (!fs.existsSync(filePath)) {
       logger.debug('File does not exist', filePath);
