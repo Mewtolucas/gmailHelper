@@ -41,7 +41,6 @@ function showSidebar() {
     .setWidth(350)
     .setHeight(600);
 
-  GmailApp.getAddonMenu().addToUi();
   DocumentApp.getUi().showModelessDialog(html, '📧 Gmail Helper');
 }
 
