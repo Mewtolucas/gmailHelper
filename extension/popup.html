@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8f8f8;
+    }
+
+    .container {
+      padding: 16px;
+    }
+
+    .header {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status {
+      padding: 12px;
+      background: white;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      border-left: 3px solid #ddd;
+    }
+
+    .status.authenticated {
+      border-left-color: #27ae60;
+      color: #27ae60;
+    }
+
+    .status.unauthenticated {
+      border-left-color: #e74c3c;
+      color: #e74c3c;
+    }
+
+    .section {
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .button {
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: opacity 0.2s;
+      margin-bottom: 8px;
+    }
+
+    .button:hover {
+      opacity: 0.9;
+    }
+
+    .btn-primary {
+      background: #1f71b8;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e8e8e8;
+      color: #333;
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .category-item {
+      padding: 8px;
+      background: white;
+      border-radius: 4px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 12px;
+      border: 1px solid #eee;
+      transition: all 0.2s;
+    }
+
+    .category-item:hover {
+      border-color: #1f71b8;
+      box-shadow: 0 2px 4px rgba(31, 113, 184, 0.1);
+    }
+
+    .loading {
+      text-align: center;
+      color: #999;
+      padding: 12px;
+      font-size: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">📧 Gmail Helper</div>
+
+    <div id="status" class="status unauthenticated">
+      Checking authentication...
+    </div>
+
+    <div class="section" id="auth-section">
+      <button id="login-btn" class="button btn-primary">Sign in with Google</button>
+    </div>
+
+    <div class="section" style="display: none;" id="main-section">
+      <div class="section-title">Categories</div>
+      <div id="categories-container" class="loading">Loading categories...</div>
+
+      <div class="section-title" style="margin-top: 16px;">New Category</div>
+      <div class="form-group">
+        <label>Name</label>
+        <input id="category-name" type="text" placeholder="e.g., Urgent">
+      </div>
+      <div class="form-group">
+        <label>Color</label>
+        <input id="category-color" type="color" value="#808080">
+      </div>
+      <button id="create-category-btn" class="button btn-secondary">Create Category</button>
+
+      <div style="margin-top: 16px;">
+        <button id="sync-btn" class="button btn-primary" style="margin-bottom: 8px;">🔄 Sync Emails</button>
+        <button id="logout-btn" class="button btn-danger">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
