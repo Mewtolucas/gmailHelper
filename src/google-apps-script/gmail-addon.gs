@@ -25,6 +25,14 @@ const CONFIG = {
 };
 
 /**
+ * Web app entry point
+ */
+function doGet(e) {
+  return HtmlService.createHtmlOutput(getSidebarHtml())
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+/**
  * Main entry point - triggered by Gmail add-on
  */
 function onOpen(e) {
