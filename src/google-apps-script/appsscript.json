@@ -9,19 +9,9 @@
       "description": "Smart email categorization, prioritization, and management",
       "version": "1.0",
       "logoUrl": "https://fonts.gstatic.com/s/i/googlematerialui/mail/v8/black-48dp.png",
-      "createSettingsFunction": "onOpen",
-      "composeTrigger": {
-        "selectFunction": "onComposeOpen"
-      },
       "homepageTrigger": {
-        "enabled": true
-      },
-      "contextualTriggers": [
-        {
-          "unconditional": {},
-          "onTriggerFunction": "onContextualOpen"
-        }
-      ]
+        "runFunction": "showSidebar"
+      }
     }
   },
   "oauthScopes": [

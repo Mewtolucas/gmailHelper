@@ -25,16 +25,12 @@ const CONFIG = {
 };
 
 /**
- * Main entry point - creates add-on menu
+ * Main entry point - triggered by Gmail add-on
  */
 function onOpen(e) {
-  GmailApp.createAddonMenu()
-    .addItem('📧 Open Gmail Helper', 'showSidebar')
-    .addSeparator()
-    .addItem('⭐ Mark as VIP', 'markAsVIP')
-    .addItem('📌 Pin Email', 'pinEmail')
-    .addItem('⚠️ Mark Important', 'markImportant')
-    .addToUi();
+  // For Gmail add-ons, the menu is handled automatically by Google
+  // Just initialize when the add-on loads
+  Logger.log('Gmail Helper Add-on loaded');
 }
 
 /**
