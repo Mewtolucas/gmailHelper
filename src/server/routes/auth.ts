@@ -1,14 +1,20 @@
 import express, { Router } from 'express';
-import { oauth } from '../../auth/oauth';
-import { tokenManager } from '../../auth/tokenManager';
+import { GmailClient } from '../../services/gmail/gmailClient';
 
 export const authRouter = Router();
+let gmailClient: GmailClient;
+
+export function setGmailClient(client: GmailClient) {
+  gmailClient = client;
+}
 
 authRouter.get('/status', async (req, res) => {
   try {
-    const token = await tokenManager.getToken();
+    if (!gmailClient) {
+      return res.json({ authenticated: false });
+    }
     res.json({
-      authenticated: !!token,
+      authenticated: gmailClient.isAuthenticated(),
       timestamp: new Date()
     });
   } catch (error) {
@@ -21,7 +27,10 @@ authRouter.get('/status', async (req, res) => {
 
 authRouter.post('/login', async (req, res) => {
   try {
-    const authUrl = oauth.generateAuthUrl();
+    if (!gmailClient) {
+      return res.status(500).json({ error: 'Gmail client not initialized' });
+    }
+    const authUrl = gmailClient.getAuthUrl();
     res.json({ authUrl });
   } catch (error) {
     res.status(500).json({
@@ -37,7 +46,11 @@ authRouter.post('/callback', async (req, res) => {
       return res.status(400).json({ error: 'No authorization code provided' });
     }
 
-    await oauth.handleCallback(code);
+    if (!gmailClient) {
+      return res.status(500).json({ error: 'Gmail client not initialized' });
+    }
+
+    await gmailClient.handleAuthCallback(code);
     res.json({ success: true, message: 'Authentication successful' });
   } catch (error) {
     res.status(500).json({
@@ -48,7 +61,10 @@ authRouter.post('/callback', async (req, res) => {
 
 authRouter.post('/logout', async (req, res) => {
   try {
-    await tokenManager.clearToken();
+    if (!gmailClient) {
+      return res.status(500).json({ error: 'Gmail client not initialized' });
+    }
+    gmailClient.logout();
     res.json({ success: true, message: 'Logged out' });
   } catch (error) {
     res.status(500).json({

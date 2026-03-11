@@ -1,12 +1,12 @@
-import express, { Router } from 'express';
-import { StorageService } from '../../services/storage/storageService';
+import { Router } from 'express';
+import { VIPListStore } from '../../services/storage/vipListStore';
 
 export const vipRouter = Router();
-const storage = StorageService.getInstance();
+const vipStore = new VIPListStore();
 
-vipRouter.get('/', async (req, res) => {
+vipRouter.get('/', (req, res) => {
   try {
-    const vipList = await storage.getVIPList();
+    const vipList = vipStore.getAll();
     res.json(vipList);
   } catch (error) {
     res.status(500).json({
@@ -15,24 +15,19 @@ vipRouter.get('/', async (req, res) => {
   }
 });
 
-vipRouter.post('/', async (req, res) => {
+vipRouter.post('/', (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, priority } = req.body;
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    const vip = {
-      id: Date.now().toString(),
+    const vip = vipStore.create({
       name: name || email,
       email,
-      createdAt: new Date().toISOString()
-    };
-
-    const vipList = await storage.getVIPList();
-    vipList.push(vip);
-    await storage.saveVIPList(vipList);
+      priority: priority || 'high'
+    });
 
     res.status(201).json(vip);
   } catch (error) {
@@ -42,17 +37,16 @@ vipRouter.post('/', async (req, res) => {
   }
 });
 
-vipRouter.delete('/:email', async (req, res) => {
+vipRouter.delete('/:email', (req, res) => {
   try {
     const { email } = req.params;
-    const vipList = await storage.getVIPList();
-    const filteredList = vipList.filter(v => v.email !== email);
+    const vip = vipStore.findOne(v => v.email.toLowerCase() === email.toLowerCase());
 
-    if (vipList.length === filteredList.length) {
+    if (!vip) {
       return res.status(404).json({ error: 'VIP not found' });
     }
 
-    await storage.saveVIPList(filteredList);
+    vipStore.delete(vip.id);
     res.json({ success: true, message: 'VIP removed' });
   } catch (error) {
     res.status(500).json({

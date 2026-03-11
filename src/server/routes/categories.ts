@@ -1,12 +1,12 @@
-import express, { Router } from 'express';
-import { StorageService } from '../../services/storage/storageService';
+import { Router } from 'express';
+import { CategoryStore } from '../../services/storage/categoryStore';
 
 export const categoriesRouter = Router();
-const storage = StorageService.getInstance();
+const categoryStore = new CategoryStore();
 
-categoriesRouter.get('/', async (req, res) => {
+categoriesRouter.get('/', (req, res) => {
   try {
-    const categories = await storage.getCategories();
+    const categories = categoryStore.getAll();
     res.json(categories);
   } catch (error) {
     res.status(500).json({
@@ -15,25 +15,20 @@ categoriesRouter.get('/', async (req, res) => {
   }
 });
 
-categoriesRouter.post('/', async (req, res) => {
+categoriesRouter.post('/', (req, res) => {
   try {
-    const { name, color, icon } = req.body;
+    const { name, color } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Category name is required' });
     }
 
-    const category = {
-      id: Date.now().toString(),
+    const category = categoryStore.create({
       name,
       color: color || '#808080',
-      icon: icon || '📁',
-      createdAt: new Date().toISOString()
-    };
-
-    const categories = await storage.getCategories();
-    categories.push(category);
-    await storage.saveCategories(categories);
+      rules: [],
+      autoApply: false
+    });
 
     res.status(201).json(category);
   } catch (error) {
@@ -43,27 +38,24 @@ categoriesRouter.post('/', async (req, res) => {
   }
 });
 
-categoriesRouter.put('/:id', async (req, res) => {
+categoriesRouter.put('/:id', (req, res) => {
   try {
     const { id } = req.params;
-    const { name, color, icon } = req.body;
+    const { name, color } = req.body;
 
-    const categories = await storage.getCategories();
-    const categoryIndex = categories.findIndex(c => c.id === id);
-
-    if (categoryIndex === -1) {
+    let updated = categoryStore.getById(id);
+    if (!updated) {
       return res.status(404).json({ error: 'Category not found' });
     }
 
-    categories[categoryIndex] = {
-      ...categories[categoryIndex],
-      name: name || categories[categoryIndex].name,
-      color: color || categories[categoryIndex].color,
-      icon: icon || categories[categoryIndex].icon
-    };
+    if (name) {
+      updated = categoryStore.rename(id, name) || updated;
+    }
+    if (color) {
+      updated = categoryStore.setColor(id, color) || updated;
+    }
 
-    await storage.saveCategories(categories);
-    res.json(categories[categoryIndex]);
+    res.json(updated);
   } catch (error) {
     res.status(500).json({
       error: (error as Error).message
@@ -71,17 +63,15 @@ categoriesRouter.put('/:id', async (req, res) => {
   }
 });
 
-categoriesRouter.delete('/:id', async (req, res) => {
+categoriesRouter.delete('/:id', (req, res) => {
   try {
     const { id } = req.params;
-    const categories = await storage.getCategories();
-    const filteredCategories = categories.filter(c => c.id !== id);
+    const deleted = categoryStore.delete(id);
 
-    if (categories.length === filteredCategories.length) {
+    if (!deleted) {
       return res.status(404).json({ error: 'Category not found' });
     }
 
-    await storage.saveCategories(filteredCategories);
     res.json({ success: true, message: 'Category deleted' });
   } catch (error) {
     res.status(500).json({
